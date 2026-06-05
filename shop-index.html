@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A2i Shop — Solutions Cloud & Azure</title>
+<style>
+  :root{
+    --ink:#0b1f3a; --azure:#0078d4; --azure-dk:#005a9e; --sky:#50c0f0;
+    --bg:#f4f8fc; --card:#ffffff; --line:#dbe7f3; --muted:#5b7290; --gold:#f2b134;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Segoe UI",-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+  header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;box-shadow:0 1px 3px rgba(11,31,58,.04)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:21px;letter-spacing:-.02em}
+  .logo{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--azure),var(--sky));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:17px;box-shadow:0 4px 12px rgba(0,120,212,.3)}
+  .brand small{color:var(--azure);font-weight:600}
+  .nav-links{display:flex;gap:30px;list-style:none;font-size:14.5px;font-weight:600}
+  .nav-links a{color:var(--muted);text-decoration:none;transition:color .15s}
+  .nav-links a:hover{color:var(--azure)}
+  .cart{background:var(--azure);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:7px}
+  .hero{padding:72px 0 56px;background:linear-gradient(160deg,#eaf4fd 0%,var(--bg) 70%);position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;top:-120px;right:-80px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(80,192,240,.22),transparent 70%)}
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;position:relative}
+  .badge{display:inline-flex;align-items:center;gap:8px;background:#dcefff;color:var(--azure-dk);font-size:12.5px;font-weight:700;padding:6px 14px;border-radius:999px;margin-bottom:20px;letter-spacing:.02em}
+  .badge::before{content:"";width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.2)}
+  h1{font-size:46px;line-height:1.1;letter-spacing:-.03em;margin-bottom:18px;font-weight:900}
+  h1 span{color:var(--azure)}
+  .lead{font-size:17px;color:var(--muted);margin-bottom:30px;max-width:480px}
+  .cta{display:flex;gap:14px}
+  .btn{padding:13px 26px;border-radius:9px;font-weight:700;font-size:15px;cursor:pointer;border:none;text-decoration:none;display:inline-block;transition:transform .12s,box-shadow .12s}
+  .btn-primary{background:var(--azure);color:#fff;box-shadow:0 6px 18px rgba(0,120,212,.32)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 9px 24px rgba(0,120,212,.4)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--azure);color:var(--azure)}
+  .hero-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px;box-shadow:0 20px 50px rgba(11,31,58,.1)}
+  .hero-card h3{font-size:15px;margin-bottom:16px;color:var(--muted);font-weight:700}
+  .stat{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}
+  .stat:last-child{border:none}
+  .stat .v{font-weight:900;font-size:20px;color:var(--azure)}
+  .stat .k{font-size:13.5px;color:var(--muted);font-weight:600}
+  .section{padding:64px 0}
+  .section-head{text-align:center;margin-bottom:44px}
+  .section-head h2{font-size:32px;font-weight:900;letter-spacing:-.02em;margin-bottom:10px}
+  .section-head p{color:var(--muted);font-size:16px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px;transition:transform .15s,box-shadow .15s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(11,31,58,.1)}
+  .card .icn{width:50px;height:50px;border-radius:12px;background:linear-gradient(135deg,#eaf4fd,#dcefff);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:16px}
+  .card h3{font-size:18px;font-weight:800;margin-bottom:8px}
+  .card p{font-size:14px;color:var(--muted);margin-bottom:18px}
+  .price{display:flex;align-items:baseline;gap:6px;margin-bottom:16px}
+  .price .amt{font-size:26px;font-weight:900;color:var(--ink)}
+  .price .per{font-size:13px;color:var(--muted);font-weight:600}
+  .card .btn{width:100%;text-align:center}
+  .trust{background:var(--ink);color:#fff;padding:40px 0}
+  .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;text-align:center}
+  .trust .n{font-size:30px;font-weight:900;color:var(--sky)}
+  .trust .l{font-size:13px;color:#9fb6d4;font-weight:600;margin-top:4px}
+  footer{background:var(--card);border-top:1px solid var(--line);padding:30px 0;text-align:center;color:var(--muted);font-size:13.5px}
+  footer .ok{display:inline-flex;align-items:center;gap:8px;background:#dcfce7;color:#15803d;padding:7px 16px;border-radius:999px;font-weight:700;margin-bottom:14px;font-size:13px}
+  @media(max-width:860px){.hero-grid,.grid,.trust-grid{grid-template-columns:1fr}.nav-links{display:none}h1{font-size:34px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <div class="brand"><span class="logo">A2</span> A2i&nbsp;<small>Shop</small></div>
+    <ul class="nav-links">
+      <li><a href="#">Solutions</a></li>
+      <li><a href="#">Cloud Azure</a></li>
+      <li><a href="#">Sécurité</a></li>
+      <li><a href="#">Support</a></li>
+    </ul>
+    <button class="cart">Panier (0)</button>
+  </div>
+</header>
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="badge">Plateforme en ligne — opérationnelle</span>
+      <h1>Le cloud <span>Azure</span><br>au service de votre entreprise</h1>
+      <p class="lead">A2i Technologies déploie, sécurise et optimise vos infrastructures Microsoft Azure. Architecture, FinOps, DevSecOps — de bout en bout.</p>
+      <div class="cta">
+        <a href="#offres" class="btn btn-primary">Découvrir nos offres</a>
+        <a href="#" class="btn btn-ghost">Nous contacter</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <h3>Votre infrastructure en un coup d'œil</h3>
+      <div class="stat"><span class="k">Disponibilité SLA</span><span class="v">99,95 %</span></div>
+      <div class="stat"><span class="k">Réduction des coûts</span><span class="v">-32 %</span></div>
+      <div class="stat"><span class="k">Régions Azure couvertes</span><span class="v">12</span></div>
+      <div class="stat"><span class="k">Temps de déploiement</span><span class="v">&lt; 15 min</span></div>
+    </div>
+  </div>
+</section>
+<section class="section" id="offres">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Nos offres cloud</h2>
+      <p>Des solutions Azure clé en main, sécurisées et évolutives</p>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="icn">&#9729;</div>
+        <h3>Cloud Essentials</h3>
+        <p>Migration et hébergement Azure pour PME. Idéal pour démarrer dans le cloud sereinement.</p>
+        <div class="price"><span class="amt">490&euro;</span><span class="per">/ mois</span></div>
+        <a href="#" class="btn btn-primary">Choisir cette offre</a>
+      </div>
+      <div class="card">
+        <div class="icn">&#128737;</div>
+        <h3>Secure Gateway</h3>
+        <p>Application Gateway WAF_v2, protection OWASP, HTTPS de bout en bout. Sécurité maximale.</p>
+        <div class="price"><span class="amt">890&euro;</span><span class="per">/ mois</span></div>
+        <a href="#" class="btn btn-primary">Choisir cette offre</a>
+      </div>
+      <div class="card">
+        <div class="icn">&#128640;</div>
+        <h3>Enterprise Scale</h3>
+        <p>Landing Zones, gouvernance, FinOps et DevSecOps pour les grandes organisations.</p>
+        <div class="price"><span class="amt">Sur devis</span></div>
+        <a href="#" class="btn btn-primary">Demander un devis</a>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="trust">
+  <div class="wrap trust-grid">
+    <div><div class="n">150+</div><div class="l">Clients accompagnés</div></div>
+    <div><div class="n">99,95%</div><div class="l">Disponibilité garantie</div></div>
+    <div><div class="n">24/7</div><div class="l">Support expert</div></div>
+    <div><div class="n">12</div><div class="l">Certifications Azure</div></div>
+  </div>
+</section>
+<footer>
+  <div class="wrap">
+    <div class="ok">&#10003; Servi via Azure Application Gateway — HTTPS actif</div>
+    <p>&copy; 2026 A2i Technologies — shop.a2itechnologies.fr · Tous droits réservés</p>
+  </div>
+</footer>
+</body>
+</html>
