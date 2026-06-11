@@ -7,7 +7,19 @@
 # =============================================================================
 set -euo pipefail
 
-RG=$(az configure --list-defaults --query "[?name=='group'].value" -o tsv)
+# Détection robuste du Resource Group :
+# 'az group list' interroge Azure directement (marche dans le terminal ACI,
+# le Cloud Shell natif, ou une ACI recyclée), contrairement à
+# 'az configure --list-defaults' qui dépend d'une config locale parfois absente.
+RG=$(az group list --query "[?starts_with(name,'rg-adl-cohort')].name | [0]" -o tsv)
+if [ -z "$RG" ]; then
+  RG=$(az group list --query "[0].name" -o tsv)
+fi
+if [ -z "$RG" ]; then
+  echo "ERREUR : Resource Group introuvable (aucun RG visible). Abandon."
+  exit 1
+fi
+
 LOCATION="westeurope"
 VNET="vnet-a2i-waf-westeu"
 SUBNET_AGW="snet-agw"
@@ -43,7 +55,6 @@ az appservice plan create -g "$RG" -n "$APP_PLAN" --sku F1 --is-linux \
 az webapp create -g "$RG" --plan "$APP_PLAN" -n "$WEBAPP" --runtime "$RUNTIME" -o none
 WEBAPP_URL=$(az webapp show -g "$RG" -n "$WEBAPP" --query defaultHostName -o tsv)
 [ -n "$WEBAPP_URL" ] || { echo "ERREUR : WEBAPP_URL vide"; exit 1; }
-
 mkdir -p ~/site-shop && cd ~/site-shop
 curl -fsSL https://raw.githubusercontent.com/doctorkloud-fr/adl-scripts/main/shop-index.html -o index.html
 python3 -c "import zipfile; zipfile.ZipFile('site.zip','w').write('index.html')"
@@ -52,7 +63,6 @@ az webapp config set -g "$RG" -n "$WEBAPP" \
   --startup-file "pm2 serve /home/site/wwwroot --no-daemon --spa" -o none
 az webapp restart -g "$RG" -n "$WEBAPP" -o none
 cd ~
-
 echo "============================================================"
 echo " Plomberie prête. Backend : https://$WEBAPP_URL"
 echo " Prochaine étape : créer VOUS-MÊME la WAF Policy (à la main),"
