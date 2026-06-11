@@ -7,10 +7,21 @@
 #  décode et matche les règles DRS quand même.
 # =============================================================================
 
-RG=$(az configure --list-defaults --query "[?name=='group'].value" -o tsv)
+# Détection robuste du Resource Group :
+# 'az group list' interroge Azure directement (marche dans le terminal ACI,
+# le Cloud Shell natif, ou une ACI recyclée), contrairement à
+# 'az configure --list-defaults' qui dépend d'une config locale parfois absente.
+RG=$(az group list --query "[?starts_with(name,'rg-adl-cohort')].name | [0]" -o tsv)
+if [ -z "$RG" ]; then
+  RG=$(az group list --query "[0].name" -o tsv)
+fi
+if [ -z "$RG" ]; then
+  echo "ERREUR : Resource Group introuvable (aucun RG visible). Abandon."
+  exit 1
+fi
+
 PIP="pip-a2i-waf"
 DOMAIN="shop.a2itechnologies.fr"
-
 IP=$(az network public-ip show -g "$RG" -n "$PIP" --query ipAddress -o tsv 2>/dev/null)
 if [ -z "$IP" ]; then
   echo "IP de l'AGW introuvable. La plateforme est-elle déployée (waf-base-cli.sh) ?"
