@@ -7,7 +7,19 @@
 # =============================================================================
 set -euo pipefail
 
-RG=$(az configure --list-defaults --query "[?name=='group'].value" -o tsv)
+# Détection robuste du Resource Group :
+# 'az group list' interroge Azure directement (marche dans le terminal ACI,
+# le Cloud Shell natif, ou une ACI recyclée), contrairement à
+# 'az configure --list-defaults' qui dépend d'une config locale parfois absente.
+RG=$(az group list --query "[?starts_with(name,'rg-adl-cohort')].name | [0]" -o tsv)
+if [ -z "$RG" ]; then
+  RG=$(az group list --query "[0].name" -o tsv)
+fi
+if [ -z "$RG" ]; then
+  echo "ERREUR : Resource Group introuvable (aucun RG visible). Abandon."
+  exit 1
+fi
+
 LOCATION="westeurope"
 VNET="vnet-a2i-waf-westeu"
 SUBNET_AGW="snet-agw"
@@ -25,11 +37,13 @@ if [ -z "$WAF_ID" ]; then
   echo "Créez-la d'abord (étape « Créer la WAF Policy »), puis relancez ce script."
   exit 1
 fi
+
 WEBAPP_URL=$(az webapp show -g "$RG" -n "$WEBAPP" --query defaultHostName -o tsv 2>/dev/null || true)
 if [ -z "$WEBAPP_URL" ]; then
   echo "ERREUR : App Service introuvable. Lancez waf-infra-cli.sh d'abord."
   exit 1
 fi
+
 echo "============================================================"
 echo " WAF Policy référencée : $WAF_ID"
 echo " Backend               : $WEBAPP_URL"
@@ -64,6 +78,7 @@ az network application-gateway probe create -g "$RG" --gateway-name "$AGW" \
   -n probe-shop --protocol Http --host-name-from-http-settings true --path "/" \
   --interval 30 --timeout 30 --threshold 3 --no-wait
 wait_agw
+
 az network application-gateway http-settings update -g "$RG" --gateway-name "$AGW" \
   -n appGatewayBackendHttpSettings --host-name-from-backend-pool true \
   --probe probe-shop --no-wait
@@ -76,4 +91,3 @@ echo " Le WAF est en Detection (hérité de VOTRE WAF Policy)."
 echo " Test : curl -k -s -o /dev/null -w '%{http_code}\\n' \\"
 echo "          --resolve shop.a2itechnologies.fr:80:$AGW_IP \\"
 echo "          http://shop.a2itechnologies.fr/"
-echo "============================================================"
